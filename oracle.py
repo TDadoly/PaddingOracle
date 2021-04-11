@@ -48,7 +48,6 @@ def check_padding(plaintext):
             return False
 
     # otherwise, padding is correct
-    print("bomb")
     return True
 
 # method to encrypt a plaintext with AES using CBC mode
