@@ -48,15 +48,15 @@ def attack(ciphertext):
         index = block_length - i - 1
         # try every value in range 256
         for v in range(256):
-            fakeciphertext[index] = v
+            fakeciphertext[index] = chr(v)
             # query oracle with C1' (faketext) and C2
             # if it returns true, continue decryption
             if query_oracle(fakeciphertext, blocked[2]):
                 # A) C1' xor P2 
                 # FOR TOMMY: I am not positive I did P2 correctly
-                i2 = ord(fakeciphertext[index]) ^ ord(i + 1)
+                i2 = ord(fakeciphertext[index]) ^ (i + 1)
                 # B) I2 xor C1 
-                plaintext[index] = i2 ^ blocked[1][index] 
+                plaintext[index] = chr(i2 ^ ord(blocked[1][index])) 
                 # C) This is unfinished
                 for ch in fakeciphertext[index:]:
                     blocked[1][]
