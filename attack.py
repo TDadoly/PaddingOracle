@@ -37,7 +37,6 @@ def attack(ciphertext):
     # initialize fakeciphertext and plaintext to 16 char lists
     fakeciphertext = ['0'] * block_length   # c1'
     plaintext = ['0'] * block_length  # p2
-    fakeplaintext = [chr(block_length-i) for i in range(block_length)]
     
     # loop through each character front to back
     for i, c in enumerate(fakeciphertext):
@@ -49,16 +48,16 @@ def attack(ciphertext):
             # if it returns true, continue decryption
             if query_oracle(fakeciphertext, c2):
                 # A) C1' xor P2' 
-                i2 = ord(fakeciphertext[index]) ^ ord(fakeplaintext[index])
+                i2 = ord(fakeciphertext[index]) ^ (i + 1)
                 # B) I2 xor C1 
                 plaintext[index] = chr(i2 ^ ord(c1[index]))
-                # C) This is unfinished
+                # C) loop through 
                 k = index
                 while k < block_length:
                     # i2 = C1[k] ^ P2[k]
                     i2 = ord(c1[k]) ^ ord(plaintext[k])
                     # update fakeciphertext = i2 ^ P2'
-                    fakeciphertext[k] = chr(i2 ^ ord(fakeplaintext[k]) + 1) 
+                    fakeciphertext[k] = chr(i2 ^ i + 2) 
                     k += 1
 
                 # break to not write over our data in fakeciphertext[index]
