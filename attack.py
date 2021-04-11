@@ -30,40 +30,42 @@ def query_oracle(fake, realblock):
     return(oracle(totalciphertext))
 
 def attack(ciphertext):
-
-    # 1
-    # blockify ciphertext to be [IV,C1,C2]
+    # 1. Break ciphertext into blocks [IV,C1,C2]
     iv,c1,c2 = blockify(ciphertext)
     block_length = 16
 
-    # initialize fakeciphertext and plaintext to 16 char lists
+    # 2. Initialize variables fakeciphertext (this is C1') and plaintext (this is P2) to be lists of 16 characters.
     fakeciphertext = ['0'] * block_length   # c1'
     plaintext = ['0'] * block_length  # p2
-    print("fakeciphertext: " + str(fakeciphertext))
-    print("plaintext: " + str(plaintext))
     
-    # loop through each character front to back
+    # 3. For each character c in the block
     for i, c in enumerate(fakeciphertext):
-        print("LoopA#: " + str(i))
+        # (loop through the 16 characters going backwards)
         index = block_length - i - 1
-        if i == 3: break
-        # try every value in range 256
+        # Try every value in range 256
         for v in range(256):
             # Set the current character of fakeciphertext to v. This is C1'[c]
             fakeciphertext[index] = chr(v)
-            # Query the oracle by passing it fakeciphertext and the block you want to decrypt. This query represents C1’C2 # If it returns true, continue decryption
+            # Query the oracle by passing it fakeciphertext and the block you want to decrypt. This query represents C1C2 
+            #  If it returns true, continue decryption.
+            #  If it returns false, continue to next v.
             if query_oracle(fakeciphertext, c2):
-                # A) I2 = C1' xor P2'
+                # A) Compute the intermediate value
+                # I2[c] = C1'[c] xor P2'[c] 
                 i2 = ord(fakeciphertext[index]) ^ (i + 1)
-                # B) P2 =I2 xor C1 
-                plaintext[index] = chr(i2 ^ ord(c1[index])) 
-                # C) This is unfinished
+                # Compute the value of the real PT character
+                # B) P2[c] = I2[c] xor C1[c] 
+                plaintext[index] = chr(i2 ^ ord(c1[index]))
+                # C) Set up the next iteration
+                # For every character k from the current character c to the last character
                 k = index
                 while k < block_length:
-                    # i2 = C1[k] ^ P2[k]
+                    # Get the value of the real ciphertext. This is C1[k].
+                    # I2[k] = C1[k] ^ P2[k]
                     i2 = ord(c1[k]) ^ ord(plaintext[k])
-                    # update fakeciphertext = i2 ^ P2'
-                    fakeciphertext[k] = chr(i2 ^ (i + 1)) 
+                    # Update fakeciphertext by computing
+                    # C1'[k] = I2[k] ^ P2'[k]
+                    fakeciphertext[k] = chr(i2 ^ i + 2) 
                     k += 1
                 break
 
