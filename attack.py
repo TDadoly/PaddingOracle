@@ -30,8 +30,40 @@ def query_oracle(fake, realblock):
     return(oracle(totalciphertext))
 
 def attack(ciphertext):
+    # blockify ciphertext to be [IV,C1,C2]
+    blocked = blockify(ciphertext)
+    block_length = 16
 
-    # YOUR CODE GOES HERE
+    # initialize fakeciphertext and plaintext to 16 char lists
+    fakeciphertext = ['0'] * block_length
+    plaintext = ['0'] * block_length
+    
+    # loop through each character front to back
+    for i, c in enumerate(fakeciphertext):
+        # try and make work for only the last character to start
+        if i == 1:
+            print(plaintext[index])
+            return plaintext
+
+        index = block_length - i - 1
+        # try every value in range 256
+        for v in range(256):
+            fakeciphertext[index] = v
+            # query oracle with C1' (faketext) and C2
+            # if it returns true, continue decryption
+            if query_oracle(fakeciphertext, blocked[2]):
+                # A) C1' xor P2 
+                # FOR TOMMY: I am not positive I did P2 correctly
+                i2 = ord(fakeciphertext[index]) ^ ord(i + 1)
+                # B) I2 xor C1 
+                plaintext[index] = i2 ^ blocked[1][index] 
+                # C) This is unfinished
+                for ch in fakeciphertext[index:]:
+                    blocked[1][]
+
+    # return our plaintext 
+    return plaintext 
+
 
 
 # test attack by encrypting a message and then calling attack method
